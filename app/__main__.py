@@ -1,60 +1,50 @@
+from funcs.functions                import Functions
+from noise.add_noise                import AddNoise
+from models.polynomial_regression   import PolyRegression
+
 import numpy as np
 
-def noise() -> np.float64:
-    return np.random.uniform(np.random.uniform(-0.5, 0), np.random.uniform(0, 0.5))
+from typing import Any
 
-def noise_sin(x: np.ndarray) -> np.ndarray:
-    return np.array([np.sin(x_i) + noise() for x_i in x])
+# | VARS |-------------------------------------------------------------------------------------------------------------|
+x_min: float = 0.01
+x_max: float = 10
+step : float = 0.01
 
-x   : np.ndarray = np.arange(-3, 3, 0.01)
-y   : np.ndarray = np.sin(x)
-y_n : np.ndarray = noise_sin(x)
+noise_min_range: float = -1000
+noise_max_range: float = 1000
 
+cumulative_noise_generation_times: int = 10
+# |--------------------------------------------------------------------------------------------------------------------|
 
-def hist2d() -> tuple[np.ndarray]:
-    x_cum: list[np.ndarray] = []
-    y_cum: list[np.ndarray] = []
-    for _ in range(100):
-        x_cum.append(x)
-        y_cum.append(noise_sin(x))
+x: np.ndarray = np.arange(x_min, x_max, step)
 
-    return np.concatenate(x_cum), np.concatenate(y_cum)
+# | FUNCTION |---------------------------------------------------------------------------------------------------------|
+inputs: tuple[np.ndarray, Any] = (x,0.01) # function inputs here
 
-x_cum, y_cum = hist2d()
+def func(*args) -> np.ndarray:
+    return Functions.test(*args)
+# |--------------------------------------------------------------------------------------------------------------------|
 
+y: np.ndarray = func(*inputs)
 
-# MODEL
-from keras import Sequential
-from keras.api.layers import Dense
-from keras.api.layers import Input
-from keras.api.losses import MeanSquaredError
+# Noise Generation
+add_noise: AddNoise = AddNoise(func)
+add_noise.func_inputs(*inputs)
+add_noise.noise_range(noise_min_range, noise_max_range)
+x_c, y_c = add_noise.cumulative_func_noise(cumulative_noise_generation_times)
 
-model: Sequential = Sequential([
-    Input((1, )),
-    Dense(64, activation="sigmoid"),
-    Dense(1, activation=None)
-])
-
-model.compile("adam", loss=MeanSquaredError)
-model.fit(x_cum, y_cum, batch_size=32, epochs=25)
-
-y_AI: np.ndarray = model.predict(x)
-# |------------------------------------------------------|
-
+# Polynomial Regression
+poly: PolyRegression = PolyRegression(x, y)
+poly.noised_data(x_c, y_c)
+y_poly, r2, deg = poly.poly_optimizer()
 
 
 import matplotlib.pyplot as plt
-from matplotlib.axes    import Axes
-from matplotlib.figure  import Figure
+plt.hist2d(x_c, y_c, bins=300)
+plt.plot(x, y, color="white")
 
-FIG: tuple[Figure, tuple[Axes]] = plt.subplots(1, 3)
-
-FIG[1][0].hist2d(x_cum, y_cum, bins=300)
-FIG[1][0].plot(x, y_AI, color="green")
-
-FIG[1][1].plot(x, y, color="blue")
-FIG[1][1].plot(x, y_AI, color="red", linestyle="dashed")
-
-FIG[1][2].scatter(x, (y-np.concatenate(model.predict(x))), alpha=0.2)
+plt.plot(x, y_poly, color="red")
+plt.title(f"r2: {r2} -> deg: {deg}")
 
 plt.show()
