@@ -23,12 +23,13 @@ class AddNoise(object):
         self.n_max: float = max_
     
     def _noise(self) -> np.float64:
-        return np.random.uniform(np.random.uniform(self.n_min, 0), np.random.uniform(0, self.n_max))
-    
+        # return np.random.uniform(np.random.uniform(self.n_min, 0), np.random.uniform(0, self.n_max))
+        return np.random.normal(0, self.n_max)
+        
     def func_noise(self) -> np.ndarray:
-        y: np.ndarray = self.func(*self.inputs)
-        noise: np.array = np.array([self._noise() for _ in range(y.shape[0])])
-        return y + noise
+        self.y: np.ndarray = self.func(*self.inputs)
+        noise: np.array = np.array([self._noise() for _ in range(self.y.shape[0])])
+        return self.y + noise
 
     def cumulative_func_noise(self, times: int) -> None:
         x_cumulative: list[np.ndarray] = []

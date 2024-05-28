@@ -8,8 +8,6 @@
 from sklearn.metrics import r2_score
 
 import numpy as np
-
-from typing import Callable, Any
 # |--------------------------------------------------------------------------------------------------------------------|
 
 
@@ -37,7 +35,8 @@ class PolyRegression(object):
                 self.deg: int = i
                 self.best_y_poly: np.ndarray = y_poly
             
-            print("r2:", self.best_r2_score, "deg:", i)
+            print("\rBest R2:", round(self.best_r2_score, 4), "deg:", i, end="")
+        print("")
             
         return self.best_y_poly, self.best_r2_score, self.deg
     
