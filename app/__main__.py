@@ -21,9 +21,9 @@ x_min: float = -3
 x_max: float = 3
 step : float = 0.01
 
-noise_range: float = 2
+noise_range: float = 3
 
-cumulative_noise_generation_times: int = 50
+cumulative_noise_generation_times: int = 5
 # |--------------------------------------------------------------------------------------------------------------------|
 
 x: np.ndarray = np.arange(x_min, x_max, step)
@@ -43,21 +43,19 @@ y: np.ndarray = func(*inputs)
 # Noise Generation
 add_noise: AddNoise = AddNoise(func)
 add_noise.func_inputs(*inputs)
-add_noise.noise_range(-noise_range, noise_range)
+add_noise.noise_range(noise_range)
 x_c, y_c = add_noise.cumulative_func_noise(cumulative_noise_generation_times)
 
-# Noise Demonstration
-from graph.noise_demonstration import NoiseDemonstration
+from graph.test import NoiseDemo
 
-noise_demo: NoiseDemonstration = NoiseDemonstration(func)
+noise_demo: NoiseDemo = NoiseDemo(func)
 noise_demo.func_inputs(*inputs)
-noise_demo.noise_range(-noise_range, noise_range)
-noise_demo.demonstrate_noise(cumulative_noise_generation_times)
-noise_demo.run()
+noise_demo.noise_range(noise_range)
+noise_demo.demo(cumulative_noise_generation_times)
 
 # Polynomial Regression
-poly: PolyRegression = PolyRegression(x, y)
-poly.noised_data(x_c, y_c)
-y_poly, r2, deg = poly.poly_optimizer()
+# poly: PolyRegression = PolyRegression(x, y)
+# poly.noised_data(x_c, y_c)
+# y_poly, r2, deg = poly.poly_optimizer()
 
 

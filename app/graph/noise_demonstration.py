@@ -42,19 +42,17 @@ class NoiseDemonstration(AddNoise):
     def _dist_noise_graph(self, x: np.ndarray, pdf: np.ndarray, index: int) -> None:
         self.all_fig[1][1][index].plot(x, pdf)
         self.all_fig[1][1][index].grid(visible=True, axis="both")
+        self.all_fig[1][1][index].plot(x, (1/(2*np.pi*np.sqrt(self.n_std))*np.e**(-((x)**2)/(2*self.n_std))))
     
     def _get_range_noise_limit(self) -> tuple[float]:
-        min_xlim: float = (self.n_min_real*self.range_modificators[-1]*4)
-        max_xlim: float = (self.n_max_real*self.range_modificators[-1]*4)
-        return min_xlim, max_xlim
+        std_range: float = (self.n_std_real*self.range_modificators[-1]*4)
+        return -std_range, std_range
     
     def _save_real_noise_range(self) -> None:
-        self.n_min_real: float = self.n_min
-        self.n_max_real: float = self.n_max
+        self.n_std_real: float = self.n_std
     
     def _update_noise_range(self, mod: float) -> None:
-        self.n_min: float = self.n_min_real*mod
-        self.n_max: float = self.n_max_real*mod
+        self.n_std: float = self.n_std_real*mod
     
     def _get_noise(self, y_cum: np.ndarray) -> np.ndarray:
         return self.y_real - y_cum
@@ -68,7 +66,8 @@ class NoiseDemonstration(AddNoise):
         x: np.ndarray = np.arange(min_xlim, max_xlim, 0.01)
         pdf: np.ndarray = kernel(x)
         
-        self._dist_noise_graph(x, np.cumsum(pdf), index)
+        self._dist_noise_graph(x, pdf, index)
+        
     
     def demonstrate_noise(self, times: int) -> None:
         self._save_real_noise_range()

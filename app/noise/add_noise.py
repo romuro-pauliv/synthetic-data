@@ -18,13 +18,12 @@ class AddNoise(object):
     def func_inputs(self, *args) -> None:
         self.inputs: tuple[np.ndarray, Any] = args
     
-    def noise_range(self, min_: float, max_: float) -> None:
-        self.n_min: float = min_
-        self.n_max: float = max_
+    def noise_range(self, std: float) -> None:
+        self.n_std: float = std
     
     def _noise(self) -> np.float64:
         # return np.random.uniform(np.random.uniform(self.n_min, 0), np.random.uniform(0, self.n_max))
-        return np.random.normal(0, self.n_max)
+        return np.random.normal(0, self.n_std)
         
     def func_noise(self) -> np.ndarray:
         self.y: np.ndarray = self.func(*self.inputs)
