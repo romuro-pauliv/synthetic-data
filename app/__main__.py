@@ -7,7 +7,10 @@
 # | Imports |----------------------------------------------------------------------------------------------------------|
 from funcs.functions                import Functions
 from noise.add_noise                import AddNoise
+from graph.noise_demonstration      import NoiseDemo
+
 from models.polynomial_regression   import PolyRegression
+
 
 import warnings
 import numpy as np
@@ -46,12 +49,11 @@ add_noise.func_inputs(*inputs)
 add_noise.noise_range(noise_range)
 x_c, y_c = add_noise.cumulative_func_noise(cumulative_noise_generation_times)
 
-from graph.test import NoiseDemo
-
 noise_demo: NoiseDemo = NoiseDemo(func)
 noise_demo.func_inputs(*inputs)
 noise_demo.noise_range(noise_range)
 noise_demo.demo(cumulative_noise_generation_times)
+
 
 # Polynomial Regression
 # poly: PolyRegression = PolyRegression(x, y)
