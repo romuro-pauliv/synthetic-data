@@ -8,9 +8,10 @@
 from funcs.functions                import Functions
 from noise.add_noise                import AddNoise
 from graph.noise_demonstration      import NoiseDemo
+from graph.regression_analysis      import RegressionAnalysis
 
 from models.polynomial_regression   import PolyRegression
-
+from models.ANN                     import ANNReg
 
 import warnings
 import numpy as np
@@ -24,7 +25,7 @@ x_min: float = -3
 x_max: float = 3
 step : float = 0.01
 
-noise_range: float = 1
+noise_range: float = 2
 
 cumulative_noise_generation_times: int = 3
 # |--------------------------------------------------------------------------------------------------------------------|
@@ -56,18 +57,51 @@ x_c, y_c = add_noise.cumulative_func_noise(cumulative_noise_generation_times)
 # noise_demo.demo(cumulative_noise_generation_times)
 
 
-# Polynomial Regression
-poly: PolyRegression = PolyRegression(x, y)
-poly.noised_data(x_c, y_c)
-y_poly, r2, deg = poly.poly_optimizer()
+def polynomial_reg() -> None:
+    poly: PolyRegression = PolyRegression(x, y)
+    poly.noised_data(x_c, y_c)
+    y_poly, r2, deg = poly.poly_optimizer()
 
-from graph.regression_analysis import RegressionAnalysis
+    reg_ana: RegressionAnalysis = RegressionAnalysis()
+    reg_ana.define_noised_data(x_c, y_c)
+    reg_ana.define_function(func)
+    reg_ana.define_inputs(*inputs)
+    reg_ana.define_noise_range(noise_range)
+    reg_ana.define_regression_model(poly.best_model)
+    reg_ana.run()
 
-reg_ana: RegressionAnalysis = RegressionAnalysis()
-reg_ana.define_noised_data(x_c, y_c)
-reg_ana.define_function(func)
-reg_ana.define_inputs(*inputs)
-reg_ana.define_noise_range(noise_range)
-reg_ana.define_regression_model(poly.best_model)
-reg_ana.run()
+def ANN_reg() -> None:
+    ANN: ANNReg = ANNReg()
+    ANN.noised_data(x_c, y_c)
+    ANN.run()
+        
+    reg_ana: RegressionAnalysis = RegressionAnalysis()
+    reg_ana.define_noised_data(x_c, y_c)
+    reg_ana.define_function(func)
+    reg_ana.define_inputs(*inputs)
+    reg_ana.define_noise_range(noise_range)
+    reg_ana.define_regression_model(ANN.predict)
+    reg_ana.run()
 
+
+# from sklearn.svm import SVR
+# from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+# from sklearn.linear_model import HuberRegressor, Ridge
+
+# svr_model =  SVR(kernel="rbf", gamma="auto", epsilon=0.00001)
+# svr_model.fit(x_c[:, np.newaxis], y_c)
+
+# def model(x: np.ndarray) -> np.ndarray:
+#     return svr_model.predict(x[:, np.newaxis])
+
+# reg_ana: RegressionAnalysis = RegressionAnalysis()
+# reg_ana.define_noised_data(x_c, y_c)
+# reg_ana.define_function(func)
+# reg_ana.define_inputs(*inputs)
+# reg_ana.define_noise_range(noise_range)
+# reg_ana.define_regression_model(model)
+# reg_ana.run()
+
+
+polynomial_reg()
+ANN_reg()
